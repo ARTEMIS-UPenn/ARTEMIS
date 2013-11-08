@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+  <head>
+    <!--link href="../css/main.css" rel="stylesheet"-->
+    <link href="../css/map.css" rel="stylesheet">
+    <link href="../css/tempmap.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <!-- MAP MODULE -->
+    <span class="map-area">
+      <div id="control-panel">
+	<span id="testline"></span><br>
+	<br><hr><br>
+	Go to Region:<br>
+	<input id="geocoder-text" type="text"/>
+	<input id="geocoder-button" type="button" value="Go"/><br>
+	<br><hr><Br>
+	Layers:<br>
+	<input id="huc-zones" type="checkbox">HUC Zones</input><br>
+	<span id="huc-zone-state" style="display:none">
+	  <select id="state-select" style="width:178px">
+	    <option value="null" selected="selected">Select State</option>
+	  </select>
+	</span>
+	<input id="impervious-cover" type="checkbox">Impervious Cover</input>
+	<span id="ic-date" style="display:none">
+	  <input id="date-picker" type="date">
+	</span><br>
+	<br><hr><br>
+	Manage Subscriptions:<input id="manage-subscriptions" type="button" value=">"/><br>
+	<select size="10" id="huc-subscriptions-list" style="display:none; width:178px" multiple>
+	</select>
+	<input id="subscription-save" type="button" value="Save" style="display:none"/><br>
+	<br><hr><br>
+	<span id="testline2">hello world</span>
+      </div>
+      <div id="map-canvas"></div>
+    </span>
+
+    <!-- LOGIN MODULE>
+    <div class="login">
+      <!-- DISPLAY LOGIN OPTIONS >
+      <span id="login-options">
+	<!--input id="twitter-login-button" type="button"/><br>
+	<input id="email-login-button" type="button" value="Sign in with existing account"/><br>
+	<input id="email-register-button" type="button" value="Make an account"/><br>
+	or<br>
+	<input id="no-login-button" type="button" value="Proceed without logging in"/><br>
+      </span>
+      <!-- EMAIL LOGIN FORM >
+      <span id="email-form" style="display:none">
+	Please enter your account info<br>
+	Email Address: <input type="text" id="login-email"><br>
+	Password: <input type="password" id="login-password"><br>
+	<input id="email-login-submit-button" type="button" value="Login">
+      </span>
+      <!-- NEW ACCOUNT FORM -->
+      <span id="new-account-form" style="display:none">
+	Please enter a desired Email address, password, and your name.<br>
+	Email Address: <input id="register-email" type="text"><br>
+	Password: <input id="register-password" type="password"><br>
+	First Name: <input id="register-first-name" type="text"><br>
+	Last Name: <input id="register-last-name" type="text"><br>
+	<input id="email-register-submit-button" type="button" value="Create account">
+      </span>
+      <!-- TWITTER OAUTH PIN ENTRY FORM >
+      <span id="pinform" style="display:none">
+	<p id="click-confirmation"></p>
+	<input id="pin-submission" type="text" value="Enter PIN"/>
+	<input id="pin-submit-button" type="button" value="Submit"/>
+      </span>
+      <!-- LOGIN STATUS >
+      <p id="login-status-text"></p>
+    </div-->
+    
+    
+    <!-- JAVASCRIPT IMPORTS -->
+    <script type="text/javascript" src="../src/jquery-2.0.2.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../src/apiKeys.js"></script>
+    <script type="text/javascript" src="../src/sha1.js"></script>
+    <script type="text/javascript" src="../src/codebird.js"></script>
+    <script type="text/javascript" src="../src/map.js"></script> 
+    <script type="text/javascript" src="../src/login.js"></script>
+  </body>
+</html>

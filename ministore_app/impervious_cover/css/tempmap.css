@@ -1,0 +1,33 @@
+html {
+     height: 100%;
+     background: #F8F8F8;
+}
+
+body {
+     height: 100%;
+     margin: 0;
+     padding: 0;
+}
+
+.map-area {
+     display: inline;
+     font-size: 12px;
+     font-family: "Arial";
+     color: black;
+}
+
+.login {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 12px;
+    font-family: "Arial";
+    color: black;
+}
+
+
+#twitter-login-button {
+    background-image: url(../assets/gui_images/sign-in-with-twitter-gray.png);
+    width: 164px;
+    height: 33px;
+}

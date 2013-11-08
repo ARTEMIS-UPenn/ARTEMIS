@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <link href="../css/register.css" rel="stylesheet">
+    <script type="text/javascript" src="../src/jquery-2.0.2.js"></script>
+    <script type="text/javascript" src="../src/apiKeys.js"></script>
+    <script type="text/javascript" src="../src/register.js"></script>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Account Registration</h1>
+      <form>
+	<label for="email_address">Email:</label>
+	<input type="text" id="email_address" name="email_address">
+	<label for="password">Password:</label>
+	<input type="password" id="password" name="password">
+	<label for="first_name">First name:</label>
+	<input type="text" id="first_name" name="first_name">
+	<label for="last_name">Last name:</label>
+	<input type="text" id="last_name" name="last_name">
+	<div id="lower">
+	  <input type="button" value="Create Account" id="submit">
+	  <input type="button" value="Cancel" id="cancel">
+	</div>
+      </form>
+      <p id="registration-status-text"></p>
+    </div>
+  </body>
+</html>

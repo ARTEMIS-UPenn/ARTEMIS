@@ -1,0 +1,21 @@
+{
+	"manifest_version": 2,
+	"name": "ARTEMIS Ministore",
+	"description": "GM lab ministore",
+	"version": "0.1",
+	"app": {
+		"background": {
+			"scripts": ["background.js"]
+		}
+	},
+	"permissions": [
+		"http://localhost/*",
+		"http://*/",
+		"http://*/*",
+		"webview",
+		"fileSystem",
+		"identity",
+		"storage",
+		"fullscreen"
+	]
+}

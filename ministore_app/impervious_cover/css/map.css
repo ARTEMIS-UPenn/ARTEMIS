@@ -1,0 +1,15 @@
+#map-canvas {
+    height: 100%;
+}
+
+#control-panel {
+    float: left;
+    height: 100%;
+    width: 180px;
+}
+
+.panel-text {
+    font-size: 12px;
+    font-family: "Arial";
+    color: black;
+}
