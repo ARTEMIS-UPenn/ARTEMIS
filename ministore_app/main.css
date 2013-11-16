@@ -32,13 +32,14 @@ iframe {
 
 #time {
     float: right;
-}
-
-#window-links {
-    float: left;
+    color: #fff;
 }
 
 a {
-    color: #000;
+//    color: #000;
     cursor: default;
+}
+#window-links {
+    float: left;
+    color: #000;
 }
