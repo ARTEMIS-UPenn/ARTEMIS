@@ -13,9 +13,17 @@
 		"http://*/",
 		"http://*/*",
 		"webview",
-		"fileSystem",
+		{"fileSystem": ["write","retainEntries","directory"]},
 		"identity",
 		"storage",
 		"fullscreen"
-	]
+	],
+	"file_handlers": {
+			 "text": {
+			 	 "types": [
+				 	  "text/*"
+				 ],
+				 "title": "Text editor"
+			 }
+	 }
 }
