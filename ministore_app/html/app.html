@@ -3,6 +3,7 @@
   <head>
     <link href="../css/app.css" rel="stylesheet">
     <script type="text/javascript" src="../src/jquery-2.0.3.js"></script>
+    <script type="text/javascript" src="../src/dnd.js"></script>
     <script type="text/javascript" src="../src/app.js"></script>
   </head>
   <body>
@@ -12,8 +13,11 @@
       <div class="content">
 	<div class="links">
 	  <div class="report">
-	    What's low, doc? <input type="text" id="report-text"/>
+	    If a bin is low, please report it.<br>
+	    Simply type in the name of the part written on the bin's label.<br>
+	    <input type="text" id="report-text"/>
 	    <input type="button" id="report-button" value="Report" />
+	    <!--input type="button" id="open-file-button" value="Open" /-->
 	    <p id="confirmation-text"></p>
 	  </div>
 
@@ -23,8 +27,11 @@
 	  <a href="selfreport.html">Misc</a-->
 	</div>
 	<div class="notifications">
-	  <h1>What is this?</h1>
-	  <p> Content here</p>
+	  <h1>Recently Reported Bins</h1>
+	  <select id="report-list" size="20">
+	  </select>
+	  <!--p id="temp-content"></p>
+	  <p id="temp-text"></p-->
 	</div>
       </div>
     </div>

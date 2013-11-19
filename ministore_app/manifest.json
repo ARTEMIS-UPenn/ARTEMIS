@@ -1,29 +1,30 @@
 {
-	"manifest_version": 2,
-	"name": "ARTEMIS Ministore",
-	"description": "GM lab ministore",
+	"name":	"ARTEMIS Ministore",
 	"version": "0.1",
+	"manifest_version": 2,
+	"description": "GM lab ministore",
+	"minimum_chrome_version":"30",
 	"app": {
-		"background": {
-			"scripts": ["background.js"]
-		}
+	    "background": {
+	        "scripts": ["background.js"]
+	    }
 	},
 	"permissions": [
-		"http://localhost/*",
-		"http://*/",
-		"http://*/*",
-		"webview",
-		{"fileSystem": ["write","retainEntries","directory"]},
-		"identity",
-		"storage",
-		"fullscreen"
+	    "http://localhost/*",
+	    "http://*/",
+	    "http://*/*",
+	    "webview",
+	    {"fileSystem": ["write","retainEntries"]},
+	    "identity",
+	    "storage",
+	    "fullscreen"
 	],
 	"file_handlers": {
-			 "text": {
-			 	 "types": [
-				 	  "text/*"
-				 ],
-				 "title": "Text editor"
-			 }
-	 }
+	    "text": {
+	        "types": [
+		    "text/*"
+		],
+		"title": "Text editor"
+	    }
+	}
 }
