@@ -103,6 +103,7 @@ function loadInitialFile(launchData) {
 */
 var list=[];
 $(document).ready(function() {
+	
 	$('#report-text').bind('keypress',function(e) {
 		var code = e.keyCode || e.which;
 		if(code == 13) {
