@@ -1,22 +1,10 @@
 #include <avr/io.h>
-//#include <avr/interrupt.h>
-//#include <avr/eeprom.h>
+#include <avr/interrupt.h>
+#include <avr/eeprom.h>
 #include <util/delay.h>
-//#include <stdio.h>
-//#include <string.h>
+#include <stdio.h>
+#include <string.h>
 
-int main(void) {
-	
-	//DDRE |= (1<<PE0);
-	DDRE |= (1<<PE7) | (1<<PE6);
-	while(1) {
-		PORTE |= (1<<PE7) | (1<<PE6);
-		_delay_ms(1000);
-		PORTE &= ~((1<<PE7) | (1<<PE6));
-		_delay_ms(1000);
-	}
-}
-/*
 #include "config.h"
 #include "MagicMicroCom.h"
 #include "GpsInterface.h"
@@ -224,11 +212,11 @@ void init(void)
   TCCR5A |= _BV(COM5B0);
   TCCR5A |= _BV(COM5C0);
   */
-  /*
+
   LED_ERROR_OFF;
 }
-*/
-/*
+
+
 int ImuPacketHandler(uint8_t len)
 {
   imuPacket[0] = adcCntr++;
@@ -237,9 +225,9 @@ int ImuPacketHandler(uint8_t len)
                  (uint8_t*)imuPacket,(NUM_ADC_CHANNELS+1)*sizeof(uint16_t));
   return 0;
 }
-*/
 
- /*
+
+
 int ReplyHostConfigReadDenied(uint8_t flag)
 {
   return 0;
@@ -542,7 +530,6 @@ int XbeePacketHandler(DynamixelPacket * dpacket)
     estopState   = newEstopState;
     estopTimeout = GlobalTimerGetTime();
   }
-  */
   /*
   
   XbeePacketHandler(&dpacket);
@@ -556,7 +543,7 @@ int XbeePacketHandler(DynamixelPacket * dpacket)
   else
     HostSendRawPacket(&xbeePacketIn);
   */
-  /*
+
   return 0;
 }
 
@@ -846,4 +833,3 @@ int main(void)
 
   return 0;
 }
-*/

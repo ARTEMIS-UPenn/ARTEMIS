@@ -1,13 +1,13 @@
 # files
-SOURCES		= main.c
-OBJECTS		= main.o
+SOURCES		= main.c uart0.c
+OBJECTS		= main.o uart0.o
 INCLUDES	= -I.
 LIBRARIES	=
 CC		= avr-gcc
 
 # compiler and programmer
 MCU_TARGET	= atmega1280
-SERIAL_DEVICE	= /dev/tty.usbserial-A700ejDY
+SERIAL_DEVICE	= /dev/ttyUSB0
 FUSES		= -U hfuse:w:0xdf:m -U lfuse:w:0x62:m
 BAUD		= 57600
 CLOCK		= 16000000
