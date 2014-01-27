@@ -17,7 +17,8 @@
 	    {"fileSystem": ["write","retainEntries"]},
 	    "identity",
 	    "storage",
-	    "fullscreen"
+	    "fullscreen",
+	    "serial"
 	],
 	"file_handlers": {
 	    "text": {

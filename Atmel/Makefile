@@ -7,7 +7,7 @@ CC		= avr-gcc
 
 # compiler and programmer
 MCU_TARGET	= atmega1280
-SERIAL_DEVICE	= /dev/ttyUSB0
+SERIAL_DEVICE	= /dev/ttyUSB1
 FUSES		= -U hfuse:w:0xdf:m -U lfuse:w:0x62:m
 BAUD		= 57600
 CLOCK		= 16000000

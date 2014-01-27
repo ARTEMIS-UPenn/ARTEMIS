@@ -11,7 +11,7 @@ bool toggle = false;
 
 void init() {
   uart0_init();
-  uart0_setbaud(115200);
+  uart0_setbaud(57600);
   sei();
 }
 
@@ -21,9 +21,9 @@ int main(void) {
   char c;
   while(true) {
     c = uart0_getchar();
-    if (c == 'a')
+    if (c == 'y')
       toggle = false;
-    if (c == 'b')
+    if (c == 'n')
       toggle = true;
     if (toggle)
       PORTE |= (1 << PE7);
