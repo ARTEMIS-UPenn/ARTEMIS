@@ -1,19 +1,19 @@
 # files
-SOURCES		= main.c uart0.c
-OBJECTS		= main.o uart0.o
+SOURCES		= main.c uart0.c DataPacket.c
+OBJECTS		= main.o uart0.o DataPacket.o
 INCLUDES	= -I.
-LIBRARIES	=
+LIBRARIES	= -lm
 CC		= avr-gcc
 
 # compiler and programmer
 MCU_TARGET	= atmega1280
-SERIAL_DEVICE	= /dev/ttyUSB1
+SERIAL_DEVICE	= /dev/ttyUSB0
 FUSES		= -U hfuse:w:0xdf:m -U lfuse:w:0x62:m
 BAUD		= 57600
 CLOCK		= 16000000
 PROGRAMMER	= -c stk500v1 -P $(SERIAL_DEVICE) -b $(BAUD) -D
 AVRDUDE		= avrdude $(PROGRAMMER) -p $(MCU_TARGET)
-COMPILE		= avr-gcc -Wall -O3 -DF_CPU=$(CLOCK) -mmcu=$(MCU_TARGET) $(INCLUDES)
+COMPILE		= avr-gcc -Wall -O3 -DF_CPU=$(CLOCK) -mmcu=$(MCU_TARGET) $(INCLUDES) $(LIBRARIES)
 
 # symbolic targets
 all: main.bin
