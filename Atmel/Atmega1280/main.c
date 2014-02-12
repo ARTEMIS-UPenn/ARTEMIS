@@ -4,13 +4,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+
 // avr library
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+
 // common libraries
 #include "uart0.h"
 #include "DataPacket.h"
+#include "TWI_Master.h"
 
 #define NUM_MODULES 1
 
@@ -103,7 +106,7 @@ int main(void) {
     else
       PORTE &= ~(1 << PE7);
   }
-#elif _TEST == 2v
+#elif _TEST == 2
   char c;
   while(true) {
     c = uart0_getchar();

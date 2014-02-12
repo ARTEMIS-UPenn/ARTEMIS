@@ -1,6 +1,6 @@
 # files
-SOURCES		= main.c uart0.c DataPacket.c
-OBJECTS		= main.o uart0.o DataPacket.o
+SOURCES		= main.c uart0.c DataPacket.c TWI_Master.c
+OBJECTS		= main.o uart0.o DataPacket.o TWI_Master.o
 INCLUDES	= -I.
 LIBRARIES	= -lm
 CC		= avr-gcc
