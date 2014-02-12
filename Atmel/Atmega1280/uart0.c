@@ -47,7 +47,8 @@ void uart0_init(void) {
   CBUF_Init(uart0_putbuf);
 
   uart0_setbaud(DEFAULT_BAUDRATE);
-  // 8N1
+
+  // Parity 8N1
   UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
   // Enable tx/rx
   UCSR0B = (1 << TXEN0) | (1 << RXEN0);

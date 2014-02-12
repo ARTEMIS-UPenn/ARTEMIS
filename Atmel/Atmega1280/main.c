@@ -8,62 +8,28 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-// homemade libraries
+// common libraries
 #include "uart0.h"
 #include "DataPacket.h"
+
+#define NUM_MODULES 1
 
 // test defs:
 // 0 for no test
 // 1 for pin output testing
-// 2 for servo testing
+//     Connect PE7 to an LED with a resistor
+// 2 for servo testing:
+//     Connect PE7 to servo data line
+//     Power servo with 6V
+// 3 for host serial commands test:
+//     Connect PE7 to an LED with a resistor
+
 #define _TEST 2
 
-// Packet structure:
-// HEADER
-// HEADER
-// ID
-// LENGTH
-// INSTRUCTION
-// PARAMS 1..N
-// CHECKSUM
+#if _TEST == 2
+ISR(TIMER1_OVF_vect) {}
 
-// device ids
-// vending machine: 0
-// tool checkout: 1
-// bins: 2
-enum {
-  VENDING,
-  TOOLS,
-  BINS
-};
-
-// vending machine instructions
-// dispense: 0
-// unlock compartment: 1
-enum {
-  DISPENSE,
-  VEND_UNLOCK,
-};
-
-// tool checkout instructions
-// checkout: 0
-// return: 1
-// unlock compartment: 2
-enum {
-  CHECKOUT,
-  RETURN,
-  TOOL_UNLOCK
-};
-
-// BINS
-// TBD
-
-volatile int a = 0;
-ISR(TIMER1_OVF_vect) {
-  a++;
-  a %= 2;
-}
-
+// servo test timer
 ISR(TIMER1_COMPA_vect) {
   PORTE &= ~(1 << PE7);
 }
@@ -85,23 +51,30 @@ void servoTurn(float angle) {
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei(); // re-enable global interrupts
 }
+#endif // _TEST
 
 // hardware initialization
 void init() {
-  cli();
+  cli(); // clear global interrupts
+
 #if _TEST == 1
   DDRE |= (1 << PE7);
+
 #elif _TEST == 2
   DDRE |= (1 << PE7) | (1 << PE2) | (1 << PE6); // set outputs in PORTE
 
-  TCCR1A = 0x00; // clear all current timer 1 settings
+  TCCR1A = 0x00;          // clear all current timer 1 settings
   TCCR1B = 0x00;
   TCCR1B |= (1 << WGM12); // turn on CTC mode:
                           // Clear Timer on Compare Match
 
-  TIMSK1 = (1 << TOIE1); // enable global and timer overflow interrupt
+  TIMSK1 = (1 << TOIE1);  // enable global and timer overflow interrupt
   TCCR1B |= (1 << CS10);
-#endif //_TEST
+
+#elif _TEST == 3
+  DDRE |= (1 << PE7);
+
+#endif // _TEST
 
   uart0_init();
   uart0_setbaud(57600);
@@ -110,19 +83,6 @@ void init() {
 
 int main(void) {
   init();
-  /*
-  Packet host_packet;
-  PacketInit(&host_packet);
-  int len = 0;
-  char c;
-  while(1) {
-    c = uart0_getchar();
-    if (c != EOF)
-      len = PacketProcessChar(&host_packet, c);
-    if (len)
-      uart0_printstr("got a packet!\r\n");
-    _delay_ms(1000);
-    }*/
 
 #if _TEST == 1  
   bool toggle = false;
@@ -143,9 +103,7 @@ int main(void) {
     else
       PORTE &= ~(1 << PE7);
   }
-#endif // _TEST
-
-#if _TEST == 2
+#elif _TEST == 2v
   char c;
   while(true) {
     c = uart0_getchar();
@@ -157,16 +115,19 @@ int main(void) {
       if (c == 'h')
 	servoTurn(180);
     }
-    /*
-    if (a == 1) {
-      PORTE |= (1 << PE7);
-      PORTE |= (1 << PE6);
-    }
-    else {
-      PORTE &= ~(1 << PE7);
-      PORTE |= (1 << PE2);
-      }*/
   }
+#elif _TEST == 3
+  Packet host_packet;
+  PacketInit(&host_packet);
+  int len = 0;
+  char c;
+  while(1) {
+    c = uart0_getchar();
+    if (c != EOF)
+      len = PacketProcessChar(&host_packet, c);
+    if (len > 0)
+      uart0_printstr("got a packet!\r\n");
+    }
 #endif // _TEST
   return 0;
 }
