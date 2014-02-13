@@ -29,7 +29,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>         
 #include "TWI_Master.h"
-#include "uart0.h"
+#include "uart.h"
 
 volatile unsigned char TWI_msgSize;               // Number of bytes to be transmitted.
 volatile unsigned char TWI_state = TWI_NO_STATE;  // State byte. Default set to TWI_NO_STATE.

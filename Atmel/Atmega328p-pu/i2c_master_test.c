@@ -67,7 +67,7 @@ void main( void )
   
   //Switch port - connect portD to the STK500 switches
   DDRD  = 0x00;
-
+  
   TWI_Master_Initialise();
   __enable_interrupt();
   
