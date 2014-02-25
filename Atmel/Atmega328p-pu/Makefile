@@ -1,13 +1,13 @@
 # files
-SOURCES		= main.c uart.c DataPacket.c TWI_Master.c
-OBJECTS		= main.o uart.o DataPacket.o TWI_Master.o
+SOURCES		= main.c uart.c DataPacket.c TWI_I2C.c
+OBJECTS		= main.o uart.o DataPacket.o TWI_I2C.o
 INCLUDES	= -I.
 LIBRARIES	= -lm
 CC		= avr-gcc
 
 # compiler and programmer
 MCU_TARGET	= atmega328p
-SERIAL_DEVICE	= /dev/ttyUSB0
+SERIAL_DEVICE	= /dev/ttyUSB1
 FUSES		= -U hfuse:w:0xd9:m -U lfuse:w:0x62:m
 BAUD		= 57600
 CLOCK		= 16000000

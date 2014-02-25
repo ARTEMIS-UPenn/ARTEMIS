@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 #define DEFAULT_BAUDRATE 57600
 
@@ -29,22 +30,31 @@ ISR(USART_RX_vect) {
 
 ISR(USART_UDRE_vect) {
   if (!CBUF_IsEmpty(uart0_putbuf)) {
+    PORTD |= (1 << PD7);
     UDR0 = CBUF_Pop(uart0_putbuf);
   }
   else {
     // Disable interrupt
     UCSR0B &= ~(1 << UDRIE0);
-    
     //signal to FTDI chip to flush the buffer
-    PORTD ^= (1 << PIND7);
+    //PORTD ^= (1 << PIND7);
   }
 }
 
-ISR(USART_TX_vect) {}
+ISR(USART_TX_vect) {
+  if (CBUF_IsEmpty(uart0_putbuf)) {
+    _delay_us(3);
+    PORTD &= ~(1 << PD7);
+  }
+}
 
 void uart0_init(void) {
   CBUF_Init(uart0_getbuf);
   CBUF_Init(uart0_putbuf);
+
+  //enable pin for RS485
+  DDRD |= (1 << PD7);
+  PORTD &= ~(1 << PD7);
 
   uart0_setbaud(DEFAULT_BAUDRATE);
 
@@ -54,10 +64,8 @@ void uart0_init(void) {
   UCSR0B = (1 << TXEN0) | (1 << RXEN0);
 
   // Enable uart rxc interrupt
-  UCSR0B |= (1 << RXCIE0);
+  UCSR0B |= (1 << RXCIE0) | (1 << TXCIE0);
   
-  //enable pin for flushing the USB chip
-  DDRD |= (1 << PIND7);
 }
 
 int uart0_setbaud(long baudrate) {
