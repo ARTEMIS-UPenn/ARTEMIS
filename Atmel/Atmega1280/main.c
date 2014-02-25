@@ -14,7 +14,6 @@
 #include "uart0.h"
 #include "uart1.h"
 #include "DataPacket.h"
-#include "TWI_Master.h"
 
 // test defs:
 // 0 for no test
