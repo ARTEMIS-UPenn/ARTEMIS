@@ -12,10 +12,9 @@
 
 // common libraries
 #include "uart0.h"
+#include "uart1.h"
 #include "DataPacket.h"
 #include "TWI_Master.h"
-
-#define NUM_MODULES 1
 
 // test defs:
 // 0 for no test
@@ -26,8 +25,14 @@
 //     Power servo with 6V
 // 3 for host serial commands test:
 //     Connect PE7 to an LED with a resistor
+// 4 for UART test
+// 5 for RS485 test
 
-#define _TEST 2
+#define _TEST 5
+
+#if _TEST == 4
+#include "TWI_I2C.h"
+#endif
 
 #if _TEST == 2
 ISR(TIMER1_OVF_vect) {}
@@ -60,27 +65,10 @@ void servoTurn(float angle) {
 void init() {
   cli(); // clear global interrupts
 
-#if _TEST == 1
-  DDRE |= (1 << PE7);
-
-#elif _TEST == 2
-  DDRE |= (1 << PE7) | (1 << PE2) | (1 << PE6); // set outputs in PORTE
-
-  TCCR1A = 0x00;          // clear all current timer 1 settings
-  TCCR1B = 0x00;
-  TCCR1B |= (1 << WGM12); // turn on CTC mode:
-                          // Clear Timer on Compare Match
-
-  TIMSK1 = (1 << TOIE1);  // enable global and timer overflow interrupt
-  TCCR1B |= (1 << CS10);
-
-#elif _TEST == 3
-  DDRE |= (1 << PE7);
-
-#endif // _TEST
-
   uart0_init();
   uart0_setbaud(57600);
+  uart1_init();
+  uart1_setbaud(57600);
   sei();
 }
 
@@ -91,6 +79,7 @@ int main(void) {
   bool toggle = false;
   uint8_t packet_pos = 0;
   char c;
+  DDRE |= (1 << PE7);
 
   init();
 
@@ -106,8 +95,19 @@ int main(void) {
     else
       PORTE &= ~(1 << PE7);
   }
+
 #elif _TEST == 2
-  char c;
+  uint8_t c;
+  DDRE |= (1 << PE7) | (1 << PE2) | (1 << PE6); // set outputs in PORTE
+
+  TCCR1A = 0x00;          // clear all current timer 1 settings
+  TCCR1B = 0x00;
+  TCCR1B |= (1 << WGM12); // turn on CTC mode:
+                          // Clear Timer on Compare Match
+
+  TIMSK1 = (1 << TOIE1);  // enable global and timer overflow interrupt
+  TCCR1B |= (1 << CS10);
+
   while(true) {
     c = uart0_getchar();
     if (c != EOF) {
@@ -119,11 +119,14 @@ int main(void) {
 	servoTurn(180);
     }
   }
+
 #elif _TEST == 3
   Packet host_packet;
   PacketInit(&host_packet);
   int len = 0;
   char c;
+  DDRE |= (1 << PE7);
+
   while(1) {
     c = uart0_getchar();
     if (c != EOF)
@@ -131,6 +134,54 @@ int main(void) {
     if (len > 0)
       uart0_printstr("got a packet!\r\n");
     }
+
+#elif _TEST == 4
+  uint8_t messageBuf[3];
+  uint8_t TWI_targetSlaveAddress = 0x10;
+
+  TWIInit();
+  DDRE |= PE7;
+  sei();
+  int i;
+  while(1) {
+    //messageBuf[0] = (TWI_targetSlaveAddress << 1);
+    //messageBuf[1] = 0x01;
+    //messageBuf[2] = 0x02;
+    PORTE ^= (1 << PE7);
+    TWIStart();
+    /*for (i = 0; i < 3; i++) {
+      TWIWrite(messageBuf[i]);
+      }*/
+    //TWIStop();
+    _delay_ms(1000);
+  }
+
+#elif _TEST == 5
+  Packet host_packet;
+  PacketInit(&host_packet);
+  int len = 0;
+  int i;
+  char c;
+  DDRE |= (1 << PE7);
+  PORTE &= ~(1 << PE7);
+  uint8_t message_buf[] = {0xFE, 0xFE, 0x01, 0x04, 0x02, 0x2B, 0x01, 0xCC};
+  while(1) {
+    c = uart0_getchar();
+    if (c != EOF) {
+      for (i = 0; i < 8; i++)
+	uart1_putchar(message_buf[i]);
+    }
+    /*
+    c = uart1_getchar();
+    if (c != EOF) {
+      len = PacketProcessChar(&host_packet, c);
+      uart0_printf("%u\r\n",c);
+    }
+    if (len > 0) {
+      PORTE ^= (1 << PE7);
+      len = 0;
+      }*/
+  }
 #endif // _TEST
   return 0;
 }
