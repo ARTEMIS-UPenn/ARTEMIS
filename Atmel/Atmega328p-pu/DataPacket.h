@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define PACKET_HEADER 0xFF
+#define PACKET_HEADER 0xFE
 #define PACKET_OVERHEAD 6
 #define PACKET_MIN_SIZE PACKET_OVERHEAD
 #define PACKET_MAX_SIZE 250
