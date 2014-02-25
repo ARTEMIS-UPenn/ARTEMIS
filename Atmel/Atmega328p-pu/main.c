@@ -13,7 +13,6 @@
 // common libraries
 #include "uart.h"
 #include "DataPacket.h"
-#include "I2C-master-lib/I2C_master.h"
 
 ISR(TIMER1_OVF_vect) {}
 
