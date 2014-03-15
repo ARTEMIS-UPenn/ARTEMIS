@@ -1,0 +1,426 @@
+#:kivy 1.7.2
+
+# artemis3
+
+<MyWidget>:
+    id:main_widget
+    do_default_tab: False
+    tab_width: 400
+    tab_height: 50
+    background_color: [1,1,1,1]
+    fullscreen:     
+        
+
+    TabbedPanelItem:
+        text: 'Bin Inventory'
+        font_size:18
+        background_color:[0,1,0,.8]
+        Accordion:
+            AccordionItem:
+                title: 'Category 1'
+                Label:
+                    text: 'Contet Goes Here'
+            AccordionItem:
+                title: 'Category 2'
+                ScrollView:
+                    size_hint:1,1
+                    GridLayout:
+                        cols:1
+                        padding:20
+                        spacing:10
+    
+                        size_hint_y:None
+                        height: self.minimum_height
+                        Button:
+                            text: 'Contet Goes Here'
+                            size_hint_y:None
+                            height:50
+                        
+            AccordionItem:
+                title: 'Category 3'
+                Label:
+                    text: 'Content Goes Here'
+            AccordionItem:
+                title: 'Category 4'
+                Label:
+                    text: 'Content Goes Here'
+
+    TabbedPanelItem:
+        text: 'Part Vending'
+        font_size:18
+        background_color:[0,0,1,.8]
+        BoxLayout:
+
+            BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: 0, .2, .5, 1
+                    Rectangle:
+                        # self here refers to the widget i.e BoxLayout
+                        pos: self.pos
+                        size: self.size
+                orientation:'vertical'
+                BoxLayout:
+                    size_hint:.98,.1
+                    Label:
+                        text:'Part Name'
+                        font_size:18
+                    Label:
+                        text:'Description'
+                        font_size:18
+                    Label:
+                        text:'Data Sheet'    
+                        font_size:18
+                    Label:
+                        text:'Relevent Courses'   
+                        font_size:18
+                    Label:
+                        text:'Price/Add to Cart'    
+                        font_size:18             
+                ScrollView:
+                    scroll_timeout:100
+                    size_hint:1,1
+                    bar_margin:10
+                    do_scroll_x:False
+                    VendingInventoryList:
+                        id:vil
+
+            CheckoutWidget:
+                id:cw
+
+    TabbedPanelItem:
+        text: 'Checkout Tools!'
+        font_size:18
+        background_color:[1,0,0,.8]
+        RstDocument:
+            text: '\\n'.join(("Hello world", "-----------", "You are in the third tab."))
+
+    TabbedPanelItem:
+        text: 'Settings'
+        font_size:18
+        background_color:[1,1,.2,.8]
+
+
+
+
+
+
+<VendingInventoryList>:
+    cols:1
+    size_hint:.98,1
+    #padding:50
+    spacing:10
+    #border:10
+    size_hint_y:None
+    height: self.minimum_height
+
+
+<CheckoutWidget>:
+    padding:[10,10,10,10]
+    orientation: 'vertical'
+    size_hint:[.5,1]
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            # self here refers to the widget i.e BoxLayout
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation:'vertical'
+        size_hint:1,.35
+        Image:
+            source: 'artemis_black.png'
+
+   
+    BoxLayout:
+        size_hint:[1,.2]
+        orientation:'horizontal'
+        Label:
+            text:'PennID:'
+            color:[0,0,0,1]
+            size_hint:[.3,1]
+            font_size:18
+        Button:
+            id:penn_id_button
+            size_hint:.9,.9
+            font_size:18
+            text:'Please Swipe PennCard'
+            on_release:root.demo_card_swipe(85594691)
+
+    BoxLayout:
+        size_hint:[1,.2]
+        Label:
+            color:[0,0,0,1]
+            size_hint:[.3,1]
+            text:'Account:'
+            font_size:18
+        Spinner:
+            id:account_selection
+            size_hint:[.9,.9]
+            background_color: [0,.2,.6,1]
+            text: 'Select Account'
+            font_size:18
+            values: ('MEAM 248', 'MEAM 201', 'PennCash', 'MEAM General')
+
+    BoxLayout:
+        orientation:'vertical'
+
+        Label:
+            text: 'Item Details:'
+            color:[0,0,0,1]
+            font_size:18
+            size_hint:[1,.1]
+        ScrollView:
+            scroll_timeout:100
+            size_hint:1,1
+        
+            bar_margin:10
+            do_scroll_x:False
+            CheckoutList:
+                id:checkout_list
+#            GridLayout:
+#                id:list_checkout
+#                size_hint_y:None
+#                cols:1
+#                height: self.minimum_height
+#                CheckoutItem:
+
+        BoxLayout:
+            size_hint:1,.2
+            orientation:'horizontal'
+            Label:
+                font_size:20
+                text:'Total:'
+                color:[0,0,0,1]
+            Label:
+                id:total_cost
+                font_size:20
+                text:'$ 0.00'
+                color:[0,0,0,1]
+
+    
+
+            
+        
+        #TextInput:
+        #    id:penn_id_input
+        #    #multiline:False
+        #    size_hint:[.9,.9]
+        #    font_size:15
+        #    text:'Please Swipe PennCard or Touch Here to Type PennID'
+        #    #color:[0,0,0,1]
+    
+    
+    BoxLayout:
+        size_hint:[1,.5]                
+        Button:
+            size_hint:[1,.8]
+            text: 'Checkout Item!'
+            on_release:root.checkout(penn_id_button.text,account_selection.text)
+            font_size:36
+            background_color: [0,1,0,1]
+
+
+
+<VendingInventoryItem>:
+    canvas.before:
+        Color:
+            rgba: 0, 0, .5, .5
+        Rectangle:
+            # self here refers to the widget i.e BoxLayout
+            pos: self.pos
+            size: self.size
+    orientation:'horizontal'
+    size_hint_y:None
+    height:100
+
+    
+    
+    Label:
+        id:item_name_label
+    Label:
+        id:item_description_label
+    Button:
+        text: 'DataSheet Button'
+    Label:
+        id:course_numbers_label
+    BoxLayout:
+        Button:
+            halign:'center'
+            text:'Select'
+            on_press:root.select_item(1)
+
+
+
+#        Button:
+#            text:'-'
+#            on_press:root.remove_one_from_cart(number_in_cart.text)
+#        Label:
+#            id:number_in_cart
+#            text:'0'
+#        Button:
+#            text:'+'
+#            on_press:root.add_one_to_cart(number_in_cart.text)
+
+<CheckoutList>:
+    size_hint_y:None
+    cols:1
+    height: self.minimum_height
+    BoxLayout:
+        size_hint_y:None
+        height:300
+        Label:
+            halign:'center'
+            valing:'center'
+            text:'Please Swipe PennCard, \n Choose an Account, \n and Select An Item \n To View Item Details'
+            font_size:30
+            color:[0,0,0,1]
+
+<CheckoutItem>:
+    orientation:'horizontal'
+    size_hint_y:None
+    height:25
+    Label:
+        id:number_in_cart
+        font_size:18
+        text:'#'
+        color:[0,0,0,1]
+    Label:
+        id:item_name
+        font_size:18
+        text:'ItemNameHERE'
+        color:[0,0,0,1]
+    Label:
+        id:item_cost
+        font_size:18
+        text:'$5.00'
+        color:[0,0,0,1]
+    Label:
+        id:item_total
+        font_size:18
+        color:[0,0,0,1]    
+    
+
+<ErrorPopup>:
+    size_hint:.7,.7
+    auto_dismiss:False
+    title:'Error!'
+    title_size:24
+    BoxLayout:
+        orientation:'vertical'
+        Label:
+            halign:'center'
+            text:'Must Login First! \n Swipe Your PennCard and Select an Account'
+            font_size:40
+        Button:
+            size_hint:1,.3
+            text:'Dismiss'
+            on_release:root.dismiss()
+
+<PennIDInput>:
+    size_hint:.7,.7
+    auto_dismiss:False
+    title:'Please Enter Your PennID'
+    title_size:24
+    BoxLayout:    
+        orientation:'vertical'        
+        VKeyboard:
+            docked:True
+        Button:
+            text:'Click me to dismiss'
+            on_press:root.dismiss()
+
+
+<VendingInProcess>:
+    size_hint: .7, .7
+    auto_dismiss: False
+    title: 'ARTEMIS VENDING...'
+    title_size:24
+    Button:
+        text: 'Click me to dismiss'
+        on_press: root.dismiss()
+    
+<ConfirmationScreen>:
+#    canvas.before:
+#        Color:
+#            rgba: 1, 1, 1, 1
+#        Rectangle:
+#            # self here refers to the widget i.e BoxLayout
+#            pos: self.pos
+#            size: self.size
+    size_hint: .7, .7
+    auto_dismiss: False
+    #background_color:0,.2,.5,1
+    title: 'PLEASE CONFIRM ORDER'
+    title_size:24
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            BoxLayout:
+                orientation:'vertical'
+                Label:
+                    size_hint:1,.2
+                    text:'Items In Cart:'
+                    halign:'left'
+                    font_size:24
+
+                ScrollView:
+                    scroll_timeout:100
+                    size_hint:1,1
+                
+                    bar_margin:10
+                    do_scroll_x:False
+                    CheckoutList:
+                        id:cart_list
+
+                #BoxLayout:
+                 #   orientation:'vertical'
+                  #  id:cart_list                
+            BoxLayout:
+                orientation:'vertical'
+                Label:
+                    size_hint:1,.2
+                    font_size:24
+                    text:'Charge:'                
+                GridLayout:
+                    cols:2
+                    Label:
+                        font_size:18
+                        text:'Name:'                
+                    Label:
+                        font_size:18
+                        id:user_label
+                        text: 'hehe'
+                    Label:
+                        font_size:18
+                        text:'PennID:'
+                    Label:
+                        font_size:18
+                        id:user_pennID
+                    Label:
+                        font_size:18
+                        text:'Account:'
+                    Label:
+                        font_size:18
+                        id:account_label
+                    Label:
+                        font_size:18
+                        text:'Total Charge:'
+                    Label:
+                        id:charge_total            
+                        font_size:18
+
+
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint:1,.3
+            Button:
+                text: 'Cancel'
+                font_size:20
+                on_press: root.cancel_order()
+            Button:
+                text: 'Complete Order'
+                font_size:30
+                on_press: root.proceed_to_vend()
+
