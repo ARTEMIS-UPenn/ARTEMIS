@@ -85,7 +85,6 @@ void init() {
 
 int main(void) {
   init();
-
   Packet host_packet;
   PacketInit(&host_packet);
   int len = 0;
@@ -102,43 +101,45 @@ int main(void) {
 	case READ_CMD:
 	  break;
 	case WRITE_CMD:
-	  int pl_size = PacketGetPayloadSize(&host_packet);
-	  uint8_t* pl = PacketGetData(&host_packet);
-	  int i;
-	  for (i = 0; i < pl_size; i++) {
-	    switch(pl[i]) {
-	    case DISPENSE:
-	      servoTurn(180);
-	      break;
-	    case RETRACT:
-	      servoTurn(0);
-	      break;
-	    case UNLOCK:
-	      //TODO
-	      break;
-	    case ID:
-	      //TODO
-	      break;
-	    case LED_ON:
-	      //TODO
-	      break;
-	    case LED_OFF:
-	      //TODO
-	      break;
-	    default:
-	      break;
+	  {
+	    int pl_size = PacketGetPayloadSize(&host_packet);
+	    uint8_t *pl = PacketGetData(&host_packet);
+	    int i;
+	    for (i = 0; i < pl_size; i++) {
+	      switch(pl[i]) {
+	      case DISPENSE:
+		STATE = 1;
+		//servoTurn(180);
+		break;
+	      case RETRACT:
+		servoTurn(0);
+		break;
+	      case UNLOCK:
+		//TODO
+		break;
+	      case ID:
+		//TODO
+		break;
+	      case LED_ON:
+		//TODO
+		break;
+	      case LED_OFF:
+		//TODO
+		break;
+	      default:
+		break;
+	      }
 	    }
+	    servoTurn(180);
+	    break;
 	  }
-	  
-	  servoTurn(180);
-	  break;
 	default:
 	  break;
 	}
       }
       //PORTD ^= (1 << PD5);
       len = 0;
-    }
+      }
   }
   return 0;
 }

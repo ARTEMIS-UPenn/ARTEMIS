@@ -30,7 +30,7 @@ ISR(USART_RX_vect) {
 
 ISR(USART_UDRE_vect) {
   if (!CBUF_IsEmpty(uart0_putbuf)) {
-    PORTD |= (1 << PD7);
+    PORTD |= (1 << PD2);
     UDR0 = CBUF_Pop(uart0_putbuf);
   }
   else {
@@ -44,7 +44,7 @@ ISR(USART_UDRE_vect) {
 ISR(USART_TX_vect) {
   if (CBUF_IsEmpty(uart0_putbuf)) {
     _delay_us(3);
-    PORTD &= ~(1 << PD7);
+    PORTD &= ~(1 << PD2);
   }
 }
 
@@ -53,8 +53,8 @@ void uart0_init(void) {
   CBUF_Init(uart0_putbuf);
 
   //enable pin for RS485
-  DDRD |= (1 << PD7);
-  PORTD &= ~(1 << PD7);
+  DDRD |= (1 << PD2);
+  PORTD &= ~(1 << PD2);
 
   uart0_setbaud(DEFAULT_BAUDRATE);
 

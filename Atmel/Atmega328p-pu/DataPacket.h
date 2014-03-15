@@ -46,6 +46,9 @@ uint8_t PacketRawGetSize(uint8_t *packet);
 uint8_t PacketGetPayloadSize(Packet *packet);
 uint8_t PacketRawGetPayloadSize(uint8_t *packet);
 
+uint8_t PacketGetType(Packet *packet);
+uint8_t PacketRawGetType(uint8_t *packet);
+
 // get pointer to the packet payload
 uint8_t* PacketGetData(Packet *packet);
 uint8_t* PacketRawGetData(uint8_t *packet);
