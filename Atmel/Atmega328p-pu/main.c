@@ -16,10 +16,6 @@
 #include "DataPacket.h"
 
 
-// micro device id
-// to be moved to eeprom
-#define MMC_ID 0x04
-
 #define MOTOR_EN PD3
 #define MOTOR_P1 PD4
 #define MOTOR_P2 PD5
@@ -57,13 +53,13 @@ enum {
 };
 
 uint8_t SYS_STATE = 0x00;
+uint8_t MMC_ID;
 
 // hardware initialization
 void init() {
   cli();                      // clear global interrupts
-  DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << PD5) | (1 << PD6); // set motor pins
-  
-
+  MMC_ID = eeprom_read_byte((uint8_t*)46);
+  DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << IND_LED); // set motor pins
   uart0_init();
   uart0_setbaud(57600);
   sei();
@@ -71,6 +67,7 @@ void init() {
 
 int main(void) {
   init();
+  
   Packet host_packet;
   PacketInit(&host_packet);
   int len = 0;
@@ -100,7 +97,10 @@ int main(void) {
 		//TODO
 		break;
 	      case CHANGE_ID:
-		//TODO
+		if (i <= pl_size) {
+		  eeprom_update_byte((uint8_t*)46, pl[i]);
+		  MMC_ID = eeprom_read_byte((uint8_t*)46);
+		}
 		break;
 	      case LED:
 		if (i <= pl_size) {
