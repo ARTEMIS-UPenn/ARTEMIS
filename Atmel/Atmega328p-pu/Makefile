@@ -7,7 +7,7 @@ CC		= avr-gcc
 
 # compiler and programmer
 MCU_TARGET	= atmega328p
-SERIAL_DEVICE	= /dev/ttyUSB1
+SERIAL_DEVICE	= /dev/ttyUSB0
 FUSES		= -U hfuse:w:0xd9:m -U lfuse:w:0x62:m
 BAUD		= 57600
 CLOCK		= 16000000

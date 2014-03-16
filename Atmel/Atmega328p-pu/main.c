@@ -20,6 +20,11 @@
 // to be moved to eeprom
 #define MMC_ID 0x04
 
+#define MOTOR_EN PD3
+#define MOTOR_P1 PD4
+#define MOTOR_P2 PD5
+#define IND_LED PD6
+
 // packet instruction types
 enum {
   READ_CMD = 0x01,
@@ -31,9 +36,8 @@ enum {
   DISPENSE = 0x01,
   RETRACT,
   UNLOCK,
-  ID,
-  LED_ON,
-  LED_OFF
+  CHANGE_ID,
+  LED
 };
 
 // read instructions
@@ -43,40 +47,22 @@ enum {
 };
   
 // compartment status
-
 enum {
-  OK = 0x00,
-  JAM
-  
+  INITIALIZING = 0x00,
+  STANDBY,
+  DISPENSING,
+  RETRACTING,
+  JAM,
+  DOOR_OPEN
 };
 
-ISR(TIMER1_OVF_vect) {}
-
-// servo test timer
-ISR(TIMER1_COMPA_vect) {
-  PORTD &= ~(1 << PD6);
-}
-
-void servoTurn(float angle) {
-  // 0 <= angle <= 180
-  // pulse width: 0.43ms for 0, 2.5ms for 180
-  // 16384 counts / ms
-  // conversion normalizes
-  float frac = angle/180 * 2.07 * 16384;
-  OCR1A = 7045 + floor(frac); // set timer
-  PORTD |= (1 << PD6);        // turn on the servo control pin this pin will turn off automatically
-                              // when timer 1 hits the value set in OCR1A
-  cli();                      // clear global interrupts for resetting
-                              // timer count
-  TCNT1 = 0;                  // set timer count to 0
-  TIMSK1 |= (1 << OCIE1A);    // enable timer compare interrupt
-  sei();                      // re-enable global interrupts
-}
+uint8_t SYS_STATE = 0x00;
 
 // hardware initialization
 void init() {
   cli();                      // clear global interrupts
-  DDRD |= (1 << PD5) | (1 << PD6);
+  DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << PD5) | (1 << PD6); // set motor pins
+  
 
   uart0_init();
   uart0_setbaud(57600);
@@ -95,49 +81,54 @@ int main(void) {
       len = PacketProcessChar(&host_packet, c);
     }
     if (len > 0) {
-      if (PacketGetId(&host_packet) == MMC_ID) { // if i'm being called
-	// check what they want from me
-	switch (PacketGetType(&host_packet)) {
+      if (PacketGetId(&host_packet) == MMC_ID) { // id position
+	switch (PacketGetType(&host_packet)) { // instr position
 	case READ_CMD:
 	  break;
 	case WRITE_CMD:
 	  {
 	    int pl_size = PacketGetPayloadSize(&host_packet);
 	    uint8_t *pl = PacketGetData(&host_packet);
-	    int i;
-	    for (i = 0; i < pl_size; i++) {
-	      switch(pl[i]) {
+	    int i = 0;
+	    if (pl_size > 0) {
+	      switch(pl[i++]) { // payload 0 position
 	      case DISPENSE:
-		STATE = 1;
-		//servoTurn(180);
 		break;
 	      case RETRACT:
-		servoTurn(0);
 		break;
 	      case UNLOCK:
 		//TODO
 		break;
-	      case ID:
+	      case CHANGE_ID:
 		//TODO
 		break;
-	      case LED_ON:
-		//TODO
-		break;
-	      case LED_OFF:
-		//TODO
+	      case LED:
+		if (i <= pl_size) {
+		  switch (pl[i++]) { // payload 1 position
+		  case 0x00: // turn off LED
+		    PORTD &= ~(1 << IND_LED);
+		    break;
+		  case 0x01: // turn on LED
+		    PORTD |= (1 << IND_LED);
+		    break;
+		  case 0x02: // toggle LED
+		    PORTD ^= (1 << IND_LED);
+		    break;
+		  default:
+		    break;
+		  } // payload 1 position
+		}
 		break;
 	      default:
 		break;
-	      }
+	      } // payload 0 position
 	    }
-	    servoTurn(180);
 	    break;
 	  }
 	default:
 	  break;
-	}
-      }
-      //PORTD ^= (1 << PD5);
+	} // instr position
+      } // id position
       len = 0;
       }
   }
