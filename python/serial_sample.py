@@ -1,5 +1,6 @@
 #!/usr/bin/python
-import serial, time
+import serial, time, ctypes
+from DataPacket import *
 ser = serial.Serial(port='/dev/ttyUSB0',
                     baudrate=57600,
                     bytesize=serial.EIGHTBITS,
@@ -7,8 +8,11 @@ ser = serial.Serial(port='/dev/ttyUSB0',
                     stopbits=serial.STOPBITS_ONE)
 
 print "Connected to " + ser.portstr
-
+packet = DataPacket(0x03,0x02,[0x05, 0x02])
+a = packet.getCharPacket()
 while True:
-    ser.write("hello")
+    for i in range(0, len(a)):
+        ser.write(a[i])
     time.sleep(1)
 ser.close()
+
