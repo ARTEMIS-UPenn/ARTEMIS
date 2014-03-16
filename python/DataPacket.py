@@ -15,6 +15,9 @@ class DataPacket:
         for i in range(0,len(packet)):
             packet[i]=chr(packet[i])
         return packet
+    def writeToSerial(self, ser, packet):
+        for i in range(0, len(packet)):
+            ser.write(packet[i])
     def setId(self, id):
         self.id = id
     def setInstr(self, instr):

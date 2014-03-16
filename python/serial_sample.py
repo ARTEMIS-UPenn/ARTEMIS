@@ -8,11 +8,10 @@ ser = serial.Serial(port='/dev/ttyUSB0',
                     stopbits=serial.STOPBITS_ONE)
 
 print "Connected to " + ser.portstr
-packet = DataPacket(0x03,0x02,[0x05, 0x02])
+packet = DataPacket(0x05,0x02,[0x05, 0x02])
 a = packet.getCharPacket()
 while True:
     for i in range(0, len(a)):
         ser.write(a[i])
     time.sleep(1)
 ser.close()
-
