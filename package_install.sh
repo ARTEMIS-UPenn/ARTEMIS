@@ -11,3 +11,6 @@ sudo apt-get install kivy
 
 # install the LAMP stack
 sudo apt-get install apache2 mysql-server php5
+
+# install python library for mysql
+sudo apt-get install python2.7-mysqldb

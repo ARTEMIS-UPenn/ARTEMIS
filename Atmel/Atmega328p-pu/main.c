@@ -55,11 +55,14 @@ enum {
 uint8_t SYS_STATE = 0x00;
 uint8_t MMC_ID;
 
+void ISR(
+
 // hardware initialization
 void init() {
   cli();                      // clear global interrupts
   MMC_ID = eeprom_read_byte((uint8_t*)46);
   DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << IND_LED); // set motor pins
+  PORTD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2); // set motor to idle
   uart0_init();
   uart0_setbaud(57600);
   sei();
@@ -90,8 +93,19 @@ int main(void) {
 	    if (pl_size > 0) {
 	      switch(pl[i++]) { // payload 0 position
 	      case DISPENSE:
+		if (SYS_STATE == STANDBY) {
+		  SYS_STATE = DISPENSING;
+		  PORTD |= (1 << MOTOR_P1);
+		  PORTD &= ~(1 << MOTOR_P2);
+		  //		  DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << IND_LED);
+		}
 		break;
 	      case RETRACT:
+		if (SYS_STATE == STANDBY) {
+		  SYS_STATE = RETRACTING;
+		  PORTD |= (1 << MOTOR_P2);
+		  PORTD &= ~(1 << MOTOR_P1);
+		}
 		break;
 	      case UNLOCK:
 		//TODO
