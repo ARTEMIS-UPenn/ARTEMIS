@@ -45,27 +45,52 @@ enum {
 // compartment status
 enum {
   INITIALIZING = 0x00,
-  STANDBY,
-  DISPENSING,
-  RETRACTING,
-  JAM,
-  DOOR_OPEN
+  STANDBY = 0x01,
+  DISPENSING = 0x02,
+  RETRACTING = 0x04,
+  DRAWER_OPEN = 0x08,
+  DRAWER_CLOSED = 0x10,
+  JAM = 0x20,
+  DOOR_OPEN = 0x40
 };
 
-uint8_t SYS_STATE = 0x00;
+volatile uint8_t SYS_STATE = INITIALIZING;
 uint8_t MMC_ID;
 
-void ISR(
+// when tray is fully opened, limit switch is pressed
+ISR(PCINT0_vect) {
+  if (SYS_STATE == RETRACTING) {
+    PORTD |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
+    SYS_STATE = STANDBY | DRAWER_CLOSED;
+  }  
+}
+
+ISR(PCINT1_vect) {
+  if (SYS_STATE == DISPENSING) {
+    PORTD |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
+    SYS_STATE = STANDBY | DRAWER_OPEN;
+  }
+}
 
 // hardware initialization
 void init() {
   cli();                      // clear global interrupts
-  MMC_ID = eeprom_read_byte((uint8_t*)46);
+  
+  PCICR |= (1 << 1) | (1 << 0); // use pin change interrupt alternate function
+  PCMSK1 |= (1 << 0); // enable pin change interrupt 8-14
+  PCMSK0 |= (1 << 0);
+  
+  MMC_ID = eeprom_read_byte((uint8_t*)46); // set device id
+  if (MMC_ID == 0xFF)
+    MMC_ID = 0xFE;
+  DDRB = 0xFC;
+  PORTB = 0x00;
   DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << IND_LED); // set motor pins
   PORTD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2); // set motor to idle
   uart0_init();
   uart0_setbaud(57600);
   sei();
+  SYS_STATE = STANDBY | DRAWER_CLOSED;
 }
 
 int main(void) {
@@ -84,7 +109,27 @@ int main(void) {
       if (PacketGetId(&host_packet) == MMC_ID) { // id position
 	switch (PacketGetType(&host_packet)) { // instr position
 	case READ_CMD:
-	  break;
+	  {
+	    int pl_size = PacketGetPayloadSize(&host_packet);
+	    uint8_t *pl = PacketGetData(&host_packet);
+	    int i = 0;
+	    if (pl_size > 0) {
+	      switch(pl[i++]) {
+	      case STATUS:
+		{
+		  uint8_t outbuf[6] = {0xFF, 0xFF, MMC_ID, 0x02, SYS_STATE, 0x00};
+		  outbuf[5] = ~(MMC_ID + 0x02 + SYS_STATE);
+		  int i;
+		  for (i = 0; i < 6; i++)
+		    uart0_putchar(outbuf[i]);
+		  break;
+		}
+	      default:
+		break;
+	      }
+	    }
+	    break;
+	  }
 	case WRITE_CMD:
 	  {
 	    int pl_size = PacketGetPayloadSize(&host_packet);
@@ -93,18 +138,17 @@ int main(void) {
 	    if (pl_size > 0) {
 	      switch(pl[i++]) { // payload 0 position
 	      case DISPENSE:
-		if (SYS_STATE == STANDBY) {
+		if (SYS_STATE == STANDBY | DRAWER_CLOSED) {
 		  SYS_STATE = DISPENSING;
-		  PORTD |= (1 << MOTOR_P1);
-		  PORTD &= ~(1 << MOTOR_P2);
-		  //		  DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << IND_LED);
+		  PORTD |= (1 << MOTOR_P2);
+		  PORTD &= ~(1 << MOTOR_P1);
 		}
 		break;
 	      case RETRACT:
-		if (SYS_STATE == STANDBY) {
+		if (SYS_STATE == STANDBY | DRAWER_OPEN) {
 		  SYS_STATE = RETRACTING;
-		  PORTD |= (1 << MOTOR_P2);
-		  PORTD &= ~(1 << MOTOR_P1);
+		  PORTD |= (1 << MOTOR_P1);
+		  PORTD &= ~(1 << MOTOR_P2);
 		}
 		break;
 	      case UNLOCK:

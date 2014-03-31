@@ -7,7 +7,7 @@ class DataPacket:
                  id=0xff,
                  instr=0xff,
                  data=[0xff],
-                 port = '/dev/ttyUSB0',
+                 port = '/dev/ttyUSB1',
                  baudrate = 57600):
         self.id = id
         self.instr = instr
@@ -43,6 +43,10 @@ class DataPacket:
         for i in range(0, len(packet)):
             self.serial.write(packet[i])
 
+    # reads len number of bytes from serial port buffer 
+    def readSerial(self, len):
+        return self.serial.read(len);
+        
     # set packet id slot
     def setId(self, id):
         self.id = id
