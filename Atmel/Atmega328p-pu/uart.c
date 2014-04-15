@@ -9,6 +9,7 @@
 
 #define uart0_getbuf_SIZE 256
 #define uart0_putbuf_SIZE 256
+#define RTS_pin PD4
 
 volatile struct {
   uint8_t m_getIdx;
@@ -30,7 +31,7 @@ ISR(USART_RX_vect) {
 
 ISR(USART_UDRE_vect) {
   if (!CBUF_IsEmpty(uart0_putbuf)) {
-    PORTD |= (1 << PD2);
+    PORTD |= (1 << RTS_pin);
     UDR0 = CBUF_Pop(uart0_putbuf);
   }
   else {
@@ -44,7 +45,7 @@ ISR(USART_UDRE_vect) {
 ISR(USART_TX_vect) {
   if (CBUF_IsEmpty(uart0_putbuf)) {
     _delay_us(3);
-    PORTD &= ~(1 << PD2);
+    PORTD &= ~(1 << RTS_pin);
   }
 }
 
@@ -53,8 +54,8 @@ void uart0_init(void) {
   CBUF_Init(uart0_putbuf);
 
   //enable pin for RS485
-  DDRD |= (1 << PD2);
-  PORTD &= ~(1 << PD2);
+  DDRD |= (1 << RTS_pin);
+  PORTD &= ~(1 << RTS_pin);
 
   uart0_setbaud(DEFAULT_BAUDRATE);
 
