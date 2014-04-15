@@ -7,7 +7,7 @@ class DataPacket:
                  id=0xff,
                  instr=0xff,
                  data=[0xff],
-                 port = '/dev/ttyUSB1',
+                 port = '/dev/ttyUSB0',
                  baudrate = 57600):
         self.id = id
         self.instr = instr

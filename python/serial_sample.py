@@ -17,7 +17,8 @@ toggle = 0x02
 did = 0xFE
 packet = DataPacket(id = did,
                     instr = write,
-                    data = [led, toggle])
+                    data = [led, toggle],
+                    port = '/dev/ttyUSB0')
 a = packet.getCharPacket()
 while True:
     

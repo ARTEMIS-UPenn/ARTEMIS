@@ -50,21 +50,24 @@ enum {
   RETRACTING = 0x04,
   DRAWER_OPEN = 0x08,
   DRAWER_CLOSED = 0x10,
-  JAM = 0x20,
-  DOOR_OPEN = 0x40
+  TRAY_FILLED = 0x20,
+  TRAY_EMPTY = 0x40,
+  DOOR_OPEN = 0x80
 };
 
 volatile uint8_t SYS_STATE = INITIALIZING;
 uint8_t MMC_ID;
 
-// when tray is fully opened, limit switch is pressed
+// when tray is fully opened, front limit switch is pressed
+// PORTB trigger
 ISR(PCINT0_vect) {
   if (SYS_STATE == RETRACTING) {
     PORTD |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
     SYS_STATE = STANDBY | DRAWER_CLOSED;
-  }  
+  } 
 }
 
+// PORTC trigger
 ISR(PCINT1_vect) {
   if (SYS_STATE == DISPENSING) {
     PORTD |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
@@ -72,13 +75,28 @@ ISR(PCINT1_vect) {
   }
 }
 
+// PORTD trigger
+ISR(PCINT2_vect) {
+  if (SYS_STATE == (STANDBY | DRAWER_CLOSED)) {
+    SYS_STATE = (STANDBY | DRAWER_CLOSED | TRAY_FILLED);
+    //SYS_STATE &= TRAY_EMPTY;
+    //SYS_STATE |= TRAY_FILLED;
+  }
+  if (SYS_STATE == (STANDBY | DRAWER_OPEN)) {
+    SYS_STATE = (STANDBY | DRAWER_OPEN | TRAY_EMPTY);
+    //SYS_STATE &= TRAY_FILLED;
+    //SYS_STATE |= TRAY_EMPTY;
+  }
+}
+
 // hardware initialization
 void init() {
   cli();                      // clear global interrupts
   
-  PCICR |= (1 << 1) | (1 << 0); // use pin change interrupt alternate function
+  PCICR |= (1 << 2) | (1 << 1) | (1 << 0); // use pin change interrupt alternate function
+  PCMSK2 |= (1 << 7); // enable pin change interrupt 16-23
   PCMSK1 |= (1 << 0); // enable pin change interrupt 8-14
-  PCMSK0 |= (1 << 0);
+  PCMSK0 |= (1 << 0); // enable pin change interrupt 0-7
   
   MMC_ID = eeprom_read_byte((uint8_t*)46); // set device id
   if (MMC_ID == 0xFF)
@@ -90,7 +108,7 @@ void init() {
   uart0_init();
   uart0_setbaud(57600);
   sei();
-  SYS_STATE = STANDBY | DRAWER_CLOSED;
+  SYS_STATE = (STANDBY | DRAWER_CLOSED);
 }
 
 int main(void) {
@@ -138,14 +156,14 @@ int main(void) {
 	    if (pl_size > 0) {
 	      switch(pl[i++]) { // payload 0 position
 	      case DISPENSE:
-		if (SYS_STATE == STANDBY | DRAWER_CLOSED) {
+		if (SYS_STATE == (STANDBY | DRAWER_CLOSED | TRAY_FILLED)) {
 		  SYS_STATE = DISPENSING;
 		  PORTD |= (1 << MOTOR_P2);
 		  PORTD &= ~(1 << MOTOR_P1);
 		}
 		break;
 	      case RETRACT:
-		if (SYS_STATE == STANDBY | DRAWER_OPEN) {
+		if (SYS_STATE == (STANDBY | DRAWER_OPEN | TRAY_EMPTY)) {
 		  SYS_STATE = RETRACTING;
 		  PORTD |= (1 << MOTOR_P1);
 		  PORTD &= ~(1 << MOTOR_P2);
