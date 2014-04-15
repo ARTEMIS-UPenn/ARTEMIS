@@ -15,11 +15,11 @@
 #include "uart.h"
 #include "DataPacket.h"
 
-#define MOTOR_STBY PB3
-#define MOTOR_EN PB0
-#define MOTOR_P1 PB1
-#define MOTOR_P2 PB2
-#define IND_LED PD7
+
+#define MOTOR_EN PD3
+#define MOTOR_P1 PD4
+#define MOTOR_P2 PD5
+#define IND_LED PD6
 
 // packet instruction types
 enum {
@@ -58,8 +58,25 @@ enum {
 volatile uint8_t SYS_STATE = INITIALIZING;
 uint8_t MMC_ID = 0xFE;
 
-// when box is removed or falls
-ISR(INT0_vect) {
+// when tray is fully opened, front limit switch is pressed
+// PORTB trigger
+ISR(PCINT0_vect) {
+  if (SYS_STATE == RETRACTING) {
+    PORTD |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
+    SYS_STATE = STANDBY | DRAWER_CLOSED;
+  } 
+}
+
+// PORTC trigger
+ISR(PCINT1_vect) {
+  if (SYS_STATE == DISPENSING) {
+    PORTD |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
+    SYS_STATE = STANDBY | DRAWER_OPEN;
+  }
+}
+
+// PORTD trigger
+ISR(PCINT2_vect) {
   if (SYS_STATE == (STANDBY | DRAWER_CLOSED)) {
     SYS_STATE = (STANDBY | DRAWER_CLOSED | TRAY_FILLED);
   }
@@ -68,47 +85,22 @@ ISR(INT0_vect) {
   }
 }
 
-// when front limit switch is hit
-ISR(INT1_vect) {
-  if (SYS_STATE == DISPENSING) {
-    PORTB |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
-    SYS_STATE = STANDBY | DRAWER_OPEN;
-  }
-}
-
-// when back limit switch is hit
-ISR(PCINT1_vect) {
-  //  PORTD ^= (1 << IND_LED);
-  if (SYS_STATE == RETRACTING) {
-    PORTB |= (1 << MOTOR_P1) | (1 << MOTOR_P2);
-    SYS_STATE = STANDBY | DRAWER_CLOSED;
-  }
-}
-
-
 // hardware initialization
 void init() {
   cli();                      // clear global interrupts
   
-  // set drawer limit switches
-  DDRD &= ~((1 << PD2) | (1 << PD3)); // set pins to input
-  EICRA |= (1 << 3) | (1 << 2) | (1 << 0); // set PD2 to any logic, set PD3 to rising edge only
-  EIMSK |= 0x03; // enable both external interrupts
-
-  PCICR |= (1 << PCIE1); // use pin change intterupt alternate function
-  PCMSK1 |= (1 << PCINT8); // enable pin change interrupt 8-14, trigger 8
+  PCICR |= (1 << 2) | (1 << 1) | (1 << 0); // use pin change interrupt alternate function
+  PCMSK2 |= (1 << 7); // enable pin change interrupt 16-23
+  PCMSK1 |= (1 << 0); // enable pin change interrupt 8-14
+  PCMSK0 |= (1 << 0); // enable pin change interrupt 0-7
   
-  // set motor and LED output pins
-  DDRB |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << MOTOR_STBY); // set motor pins to output
-  PORTB |= (1 << MOTOR_STBY) | (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2);
-
-  DDRD |= (1 << IND_LED); // enable LED pin
-  PORTD &= ~(1 << IND_LED); // turn off LED pin
-
   MMC_ID = eeprom_read_byte((uint8_t*)46); // set device id
   if (MMC_ID == 0xFF)
     MMC_ID = 0xFE;
-
+  DDRB = 0xFC;
+  PORTB = 0x00;
+  DDRD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2) | (1 << IND_LED); // set motor pins
+  PORTD |= (1 << MOTOR_EN) | (1 << MOTOR_P1) | (1 << MOTOR_P2); // set motor to idle
   uart0_init();
   uart0_setbaud(57600);
   sei();
@@ -117,18 +109,6 @@ void init() {
 
 int main(void) {
   init();
-  /*
-  DDRD |= (1 << IND_LED);
-  char testc;
-  while(1) {
-    testc = uart0_getchar();
-    if (testc != EOF)
-      PORTD ^= (1 << IND_LED);
-    //_delay_ms(1000);
-    //PORTD ^= (1 << PD4);
-    //_delay_ms(1000);
-  }
-  */
   
   Packet host_packet;
   PacketInit(&host_packet);
@@ -166,7 +146,6 @@ int main(void) {
 	  }
 	case WRITE_CMD:
 	  {
-	    
 	    int pl_size = PacketGetPayloadSize(&host_packet);
 	    uint8_t *pl = PacketGetData(&host_packet);
 	    int i = 0;
@@ -175,15 +154,15 @@ int main(void) {
 	      case DISPENSE:
 		if (SYS_STATE == (STANDBY | DRAWER_CLOSED | TRAY_FILLED)) {
 		  SYS_STATE = DISPENSING;
-		  PORTB |= (1 << MOTOR_P2);
-		  PORTB &= ~(1 << MOTOR_P1);
+		  PORTD |= (1 << MOTOR_P2);
+		  PORTD &= ~(1 << MOTOR_P1);
 		}
 		break;
 	      case RETRACT:
 		if (SYS_STATE == (STANDBY | DRAWER_OPEN | TRAY_EMPTY)) {
 		  SYS_STATE = RETRACTING;
-		  PORTB |= (1 << MOTOR_P1);
-		  PORTB &= ~(1 << MOTOR_P2);
+		  PORTD |= (1 << MOTOR_P1);
+		  PORTD &= ~(1 << MOTOR_P2);
 		}
 		break;
 	      case UNLOCK:
@@ -208,7 +187,6 @@ int main(void) {
 		    PORTD ^= (1 << IND_LED);
 		    break;
 		  default:
-		    //PORTD ^= (1 << IND_LED);
 		    break;
 		  } // payload 1 position
 		}
@@ -226,6 +204,5 @@ int main(void) {
       len = 0;
       }
   }
-  
   return 0;
 }
