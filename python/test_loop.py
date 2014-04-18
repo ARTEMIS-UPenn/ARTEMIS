@@ -22,8 +22,9 @@ dispensing = 0x02
 retracting = 0x04
 drawer_open = 0x08
 drawer_closed = 0x10
-jam = 0x20
-door_open = 0x40
+tray_filled = 0x20
+tray_empty = 0x40
+door_open = 0x80
 
 device_status = initializing
 
@@ -44,20 +45,24 @@ def getStatus():
     return ret
 
 while counter != loop_times:
-    print "iteration: " + str(counter) + "\n"
-    counter = counter + 1
     ret = getStatus()
-    while (ret[4] == dispensing or ret[4] == retracting):
+    while (ret[4] == dispensing or ret[4] == retracting or ret[4] == standby + drawer_closed):
         ret = getStatus()
         #print ret, dispensing, retracting
-    if ret[4] == standby + drawer_closed:
+    if ret[4] == standby + drawer_closed + tray_filled:
+        print "iteration: " + str(counter) + "\n"
+        counter = counter + 1
+
         packet = DataPacket(id = device_id,
                             instr = write,
                             data = [dispense])
         a = packet.getCharPacket()
         packet.writeToSerial(a)
         ret = getStatus()
-    if ret[4] == standby + drawer_open:
+    if ret[4] == standby + drawer_open + tray_empty:
+        print "iteration: " + str(counter) + "\n"
+        counter = counter + 1
+
         packet = DataPacket(id = device_id,
                             instr = write,
                             data = [retract])
